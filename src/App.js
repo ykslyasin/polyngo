@@ -34,7 +34,9 @@ function App() {
 
   return (
     <div className="App">
-      <Navi userPoints={userPoints} falseCount={falseCount} trueCount={trueCount} setLevel={setLevel} isAuthenticated={isAuthenticated} handleSignOut={handleSignOut} kullaniciAdi={kullaniciAdi} />
+      
+    <Navi userPoints={userPoints} falseCount={falseCount} trueCount={trueCount} setLevel={setLevel} isAuthenticated={isAuthenticated} handleSignOut={handleSignOut} kullaniciAdi={kullaniciAdi} />
+
       <Container className='main'>
         <Routes>
           <Route path="/content" element={<ContentPage setUserPoints={setUserPoints} userID={userID} trueCount={trueCount} falseCount={falseCount} setFalseCount={setFalseCount} setTrueCount={setTrueCount} level={level} questionData={questionData} setQuestionData={setQuestionData} playedVideos={playedVideos} setPlayedVideos={setPlayedVideos}/>}></Route>

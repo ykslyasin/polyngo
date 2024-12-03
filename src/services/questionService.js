@@ -1,12 +1,13 @@
 import axios from "axios"
 
-export default class questionService {
+export default class toolsService {
     getQuestionAll() {
-        return axios.get(`http://localhost:8080/api/questions/getall`)
+        return axios.get(`http://localhost:8080/api/tools/getall`)
     }
 
     getQuestionByLevel(level,userID) {
         return axios.get(`http://localhost:8080/api/questions/getByLevel?questionLevel=${level}&userId=${userID}`)
     }
 
+    
 }

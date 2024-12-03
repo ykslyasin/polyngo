@@ -1,13 +1,17 @@
 import React from 'react'
 import { Grid } from 'semantic-ui-react'
+import { Link } from 'react-router-dom'
+import { Menu, Container } from 'semantic-ui-react'
+import '../App.css';
 
 export default function Home() {
   return (
-    <div className='mt-[200px]'>
+    <div className='mt-[0px]' >
+
       <Grid>
-        <Grid.Row columns={2}>
+        <Grid.Row columns={2} >
           <Grid.Column>
-            <img src=".\images\home1.png" alt="" />
+            <img src=".\images\h4cktools.png" alt="" width={500} />
           </Grid.Column>
           <Grid.Column className='mt-5'>
             <h1 className=''>Master the English language! <br /> It's enjoyable and comes at no cost.</h1>
