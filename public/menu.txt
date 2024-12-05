@@ -1,0 +1,89 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Menu, MenuItem, MenuHeader } from 'semantic-ui-react';
+import axios from 'axios';
+import '../App.css';
+import SignedOut from './SignedOut';
+import SignedIn from './SignedIn';
+
+export default function Navi({ isAuthenticated, handleSignOut, kullaniciAdi, setLevel, falseCount, trueCount, userPoints }) {
+  // Kategorileri saklamak için state
+  const [categories, setCategories] = useState([]);
+
+  // API'den kategorileri çekme işlemi
+  useEffect(() => {
+    // API'den tool verilerini çekiyoruz
+    axios
+      .get('http://localhost:8080/api/tools/getall') // API endpoint'i
+      .then((response) => {
+        // API'den gelen veriyi işliyoruz
+        // Burada her bir tool'ın category bilgisine ulaşacağız
+        const categories = response.data.data.map((tool) => tool.toolCategory);
+        
+        // Kategorileri state'e kaydediyoruz, aynı kategorileri tekrar etmemek için set ediliyor
+        const uniqueCategories = [
+          ...new Map(categories.map((item) => [item.categoryId, item])).values()
+        ];
+        
+        setCategories(uniqueCategories); // Kategorileri state'e atıyoruz
+      })
+      .catch((error) => {
+        console.error('API Error:', error); // Hata durumunda konsola yazdırma
+      });
+  }, []); // Bu effect yalnızca ilk renderda çalışacak
+
+  return (
+    <div>
+      {/* Menüyü oluşturuyoruz */}
+      <Menu inverted color="violet" borderless>
+        <Menu.Item
+          as={Link}
+          to="/"
+          className="fs-4 fw-bold fst-normal"
+          name="H4CKTOOLS"
+          position="left"
+          style={{ marginLeft: "200px" }} // Menüyü sola kaydırıyoruz
+        />
+
+        <Menu.Menu position="right" style={{ marginTop: "6px" }}>
+          {isAuthenticated ? (
+            <SignedIn
+              userPoints={userPoints}
+              falseCount={falseCount}
+              trueCount={trueCount}
+              setLevel={setLevel}
+              handleSignOut={handleSignOut}
+              kullaniciAdi={kullaniciAdi}
+            />
+          ) : (
+            <SignedOut />
+          )}
+        </Menu.Menu>
+      </Menu>
+
+      {/* Vertical menüyü oluşturuyoruz */}
+      <Menu vertical fixed="top left" inverted color="grey">
+      <MenuItem>
+  {/* Veritabanından çekilen kategori adını dinamik olarak burada kullanıyoruz */}
+  <MenuHeader>{categories[1]?.categoryName || 'Products'}</MenuHeader>
+
+  <div>
+    {/* Kategorileri map() ile dönerken her bir kategori için bir link oluşturuyoruz */}
+    {categories.map((category) => (
+      <Link key={category.categoryId} to={`/category/${category.categoryId}`}>
+        <MenuItem
+          name={category.categoryTechnique}
+          // Aktif olan menü öğesini kontrol etme (isteğe bağlı)
+          active={false} // Burada aktif olup olmadığı kontrol edilebilir
+        />
+      </Link>
+    ))}
+  </div>
+</MenuItem>
+
+
+        {/* Diğer menu elemanları burada olabilir */}
+      </Menu>
+    </div>
+  );
+}
