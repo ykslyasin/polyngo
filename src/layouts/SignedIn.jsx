@@ -1,79 +1,72 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Dropdown, Menu, Image } from 'semantic-ui-react';
-import _ from 'lodash';
-import { Icon } from 'semantic-ui-react'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button, Menu, MenuItem, Typography } from '@mui/joy';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import LogoutIcon from '@mui/icons-material/Logout';
+import StarIcon from '@mui/icons-material/Star';
 
-export default function SignedIn({ handleSignOut, kullaniciAdi, setLevel, trueCount, falseCount,userPoints }) {
 
+export default function SignedIn({ handleSignOut, kullaniciAdi }) {
     const navigate = useNavigate();
+    const [anchorEl, setAnchorEl] = useState(null);
 
-    const stateOptions = [
-        {
-            value: "life",
-            key: 0
-        },
-        {
-            value: "beginner",
-            key: 1
-        },
-        {
-            value: "elementary",
-            key: 2
-        },
-        {
-            value: "intermediate",
-            key: 3
-        },
-        {
-            value: "upper",
-            key: 4
-        },
-        {
-            value: "advanced",
-            key: 5
-        }
-    ];
-
-    const handleDropdownChange = (event, data) => {
-        // Seçilen değerin key özelliğini al ve setLevel fonksiyonu ile güncelle
-        const selectedLevelKey = data.options.find(option => option.value === data.value)?.key;
-        setLevel(selectedLevelKey);
-        navigate('/content', { replace: true });
+    // Menü açma ve kapatma işlemleri
+    const handleToggleMenu = (event) => {
+        setAnchorEl((prev) => (prev ? null : event.currentTarget)); // Açık mı kapalı mı kontrol et
     };
 
-    // stateOptions içindeki value'ları alarak yeni bir dizi oluştur
-    const dropdownOptions = stateOptions.map(option => ({
-        key: option.key,
-        text: option.value,
-        value: option.value,
-    }));
+    const handleCloseMenu = () => {
+        setAnchorEl(null); // Menü kapat
+    };
 
     return (
-        <div className='flex items-center'>
-            <Dropdown
-                className='h-[20px]'
-                placeholder='life'
-                selection
-                options={dropdownOptions}
-                onChange={handleDropdownChange}
-            />
-            <div className='flex align-center items-center'>
-                {/* <p className='text-white m-2' >True: {trueCount}</p>
-                <p className='text-white m-2' >False: {falseCount}</p> */}
-                <p className='text-white ml-4 text-lg font-bold italic' >Points : {userPoints} </p>
-            </div>
+        <div className="flex items-center">
+            <Button
+                variant="solid"
+                onClick={handleToggleMenu}
+                endDecorator={<ArrowDropDownIcon />}
+                sx={{ fontFamily:'Ubuntu Mono, monospace', fontSize: '20px', fontWeight: 'bold', textTransform: 'none', marginRight:10, backgroundColor:'rgb(60,60,60)', '&:hover': { backgroundColor: 'rgb(120,120,120)' }  }}
+            >
+                {kullaniciAdi}
+            </Button>
 
-            <Menu.Item>
-                {/* <Image avatar spaced="right" src="./images/Default-avatar.jpg"></Image> */}
-                <Dropdown className='ml-5 text-lg font-extrabold' pointing="top right" text={kullaniciAdi}>
-                    <Dropdown.Menu>
-                        {/* <Dropdown.Item as={Link} to='/profile' text="Profile" icon="user" /> */}
-                        <Dropdown.Item as={Link} to='/leaderboard' text="Leaderboard" icon="list ol" />
-                        <Dropdown.Item onClick={handleSignOut} as={Link} to='/' text="Sign Out" icon="sign out" />
-                    </Dropdown.Menu>
-                </Dropdown>
-            </Menu.Item>
+            <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleCloseMenu}
+                placement="bottom-start"
+                sx={{backgroundColor:'rgb(60,60,60)', borderColor:'rgb(60,60,60)' }}
+            >
+
+                <MenuItem
+                    
+                    sx={{color:'rgb(255,255,255)',
+                        '&:hover': {pointerEvents:'auto', '&:hover': { backgroundColor: 'rgb(120,120,120)'}}
+                    }}
+                    onClick={() => {
+                        navigate('favorites'); // Çıkış yap ve anasayfaya yönlendir
+                    }}
+                >
+                    <StarIcon sx={{ marginRight: '8px', '&:hover': { backgroundColor: 'rgb(120,120,120)' } }} />
+                    Favorilerim
+                </MenuItem>
+
+                <MenuItem
+                    
+                    sx={{color:'rgb(255,255,255)',
+                        '&:hover': {pointerEvents:'auto', '&:hover': { backgroundColor: 'rgb(120,120,120)'}}
+                    }}
+                    onClick={() => {
+                        handleSignOut();
+                        navigate('/'); // Çıkış yap ve anasayfaya yönlendir
+                    }}
+                >
+                    <LogoutIcon sx={{ marginRight: '8px', '&:hover': { backgroundColor: 'rgb(120,120,120)' } }} />
+                    Çıkış Yap
+                </MenuItem>
+
+                
+            </Menu>
         </div>
     );
 }

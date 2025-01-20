@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Form, Input, Button, Grid } from 'semantic-ui-react';
+import { Input, Button, Typography, Box, Grid } from '@mui/joy';
 import UserService from '../services/userService';
+import { GridColumn } from 'semantic-ui-react';
 
 export default function SignInPage({
   userID,
@@ -20,15 +21,9 @@ export default function SignInPage({
     try {
       const response = await userService.loginAuth(kullaniciAdi, sifre);
 
-      // Response'dan gelen verileri kontrol ederek işlemleri gerçekleştir
       if (response.data.success) {
-        // Kullanıcı girişi başarılı, handleSignIn fonksiyonunu çağırarak isAuthenticated değerini true yapabilirsiniz
         setIsAuthenticated(true);
-
-        // Kullanıcı ID'sini setUserID ile ayarla
         setUserID(response.data.data.id);
-
-        // Navigate to the home page
         navigate('/');
 
         // Fetch user points after successful authentication
@@ -36,53 +31,73 @@ export default function SignInPage({
         const upgradedPoints = response1.data?.userPoints;
         console.log('upgradedPoints: ' + upgradedPoints);
         setUserPoints(upgradedPoints);
-
-        
       } else {
-        // Kullanıcı girişi başarısız, gerekli mesajları kullanıcıya gösterebilirsiniz
-        alert('username or password is wrong!');
-        console.error('username or password is wrong');
+        alert('Username or password is wrong!');
+        console.error('Username or password is wrong');
       }
     } catch (error) {
-      // Hata durumu, isteğin başarısız olduğunu belirtir
-      console.error('Hata:', error.message);
+      console.error('Error:', error.message);
     }
   };
 
   useEffect(() => {
-    // Sayfa yüklendiğinde input alanlarını temizle
     setKullaniciAdi('');
     setSifre('');
   }, []);
 
   return (
-    <div>
-      <Grid>
-        <Grid.Column className='mx-auto' width={12}>
-          <Form>
-            <Form.Field
-              id='form-input-control-error-email'
-              control={Input}
-              label='username'
-              placeholder='username...'
-              value={kullaniciAdi}
-              onChange={(e) => setKullaniciAdi(e.target.value)}
-            />
-            <Form.Field
-              id='form-input-control-password'
-              control={Input}
-              label='Password'
-              type='password'
-              placeholder='Password'
-              value={sifre}
-              onChange={(e) => setSifre(e.target.value)}
-            />
-            <Button onClick={handleSubmit} primary>
-              Sign In
-            </Button>
-          </Form>
-        </Grid.Column>
-      </Grid>
-    </div>
+
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '60vh',
+        px: 2,
+      }}
+    >
+      <Typography level="h4" fontWeight="bold" sx={{ mb: 2, color:'rgb(255,255,255)' }}>
+        Hesabınızla oturum açın
+      </Typography>
+      <Box
+        component="form"
+        sx={{
+          width: '100%',
+          maxWidth: 400,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+        }}
+      >
+        <Input
+          type="text"
+          placeholder="Kullanıcı adı"
+          value={kullaniciAdi}
+          onChange={(e) => setKullaniciAdi(e.target.value)}
+          variant="soft"
+          color="primary"
+        />
+        <Input
+          type="password"
+          placeholder="Parola"
+          value={sifre}
+          onChange={(e) => setSifre(e.target.value)}
+          variant="soft"
+          color="primary"
+        />
+        <Button onClick={handleSubmit} color="primary" size="lg" sx={{backgroundColor:'rgb(255,0,71)',
+                                                                      '&:hover':{backgroundColor:'rgb(120,120,120)'}
+        }}>
+          Giriş yap
+        </Button>
+        <Typography level="body2" sx={{ textAlign: 'center', mt: 1 }}>
+          Hesabınız yok mu?{' '}
+          <Link to="/sign-up" style={{ textDecoration: 'none', color: 'rgb(255,0,71)' }}>
+            Kayıt ol
+          </Link>
+        </Typography>
+      </Box>
+    </Box>
   );
 }

